@@ -1,66 +1,109 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import '../src/styles/auth.css';
 
 function Login() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const navigate = useNavigate();
+    var [email, setEmail] = useState('');
+    var [password, setPassword] = useState('');
+    var [message, setMessage] = useState('');
+    var navigate = useNavigate();
 
-    const handleLogin = async (e) => {
-        e.preventDefault();
-        if (email === "") {
-            setMessage("Please enter the email");
-            return;
-        } else if (password === "") {
-            setMessage("Please enter the password");
-            return;
-        } else {
-            try {
-                const response = await axios.post('http://localhost:5000/api/auth/login', {
-                    email,
-                    password
-                });
-                
-                localStorage.setItem('token', response.data.token);
-                setEmail("");
-                setPassword("");
-                setMessage("Login successful!");
-                navigate('/todo');
-            } catch (err) {
-                setMessage(err.response?.data?.message || "Login failed. Please check your credentials.");
-            }
+    useEffect(function() {
+        var token = localStorage.getItem('token');
+        if (token) {
+            navigate('/todo');
         }
-    };
+    }, [navigate]);
+
+    function handleEmailChange(event) {
+        setEmail(event.target.value);
+    }
+
+    function handlePasswordChange(event) {
+        setPassword(event.target.value);
+    }
+
+    async function handleLogin(event) {
+        event.preventDefault();
+        setMessage('');
+
+        if (email === '') {
+            setMessage('Please enter your email');
+            return;
+        }
+
+        if (password === '') {
+            setMessage('Please enter your password');
+            return;
+        }
+
+        try {
+            var response = await axios.post('http://localhost:5000/api/auth/login', {
+                email: email,
+                password: password
+            });
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('email', response.data.email || email);
+            setMessage('Login successful!');
+            navigate('/todo');
+        } catch (err) {
+            setMessage(
+                (err.response && err.response.data && err.response.data.message)
+                    ? err.response.data.message
+                    : 'Login failed. Please check your credentials.'
+            );
+        }
+    }
+
+    var isSuccess = message === 'Login successful!';
 
     return (
-        <div>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-                <input 
-                    title='Email'
-                    type="text"
-                    placeholder='Email'
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+        <div className="auth-page">
+            <div className="auth-logo-wrap">
+                <div className="auth-logo-icon">&#10003;</div>
+                <span className="auth-logo-text">TaskFlow</span>
+            </div>
 
-                <input
-                    title='Password'
-                    type='password'
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+            <div className="auth-card">
+                <h2 className="auth-heading">Welcome back</h2>
+                <p className="auth-subheading">Sign in to access your tasks</p>
 
-                <button type="submit">Login</button>
-                <p>{message}</p>
-            </form>
-            <div style={{ marginTop: '10px' }}>
-                <Link to="/signup">Don't have an account? Sign up</Link>
-                <br /><br />
-                <Link to="/">Back to Landing</Link>
+                {message !== '' && (
+                    <div className={'auth-message ' + (isSuccess ? 'success' : 'error')}>
+                        {message}
+                    </div>
+                )}
+
+                <form onSubmit={handleLogin} className="auth-form">
+                    <div className="form-group">
+                        <label htmlFor="login-email">Email address</label>
+                        <input
+                            id="login-email"
+                            type="email"
+                            placeholder="name@example.com"
+                            value={email}
+                            onChange={handleEmailChange}
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="login-password">Password</label>
+                        <input
+                            id="login-password"
+                            type="password"
+                            placeholder="Enter your password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            className="form-input"
+                        />
+                    </div>
+                    <button type="submit" className="btn-primary btn-full">Sign In</button>
+                </form>
+
+                <p className="auth-footer-text">
+                    Don't have an account? <Link to="/signup" className="auth-link">Create one</Link>
+                </p>
             </div>
         </div>
     );
