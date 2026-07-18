@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [message, setMessage] = useState("");
+    const navigate = useNavigate();
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         if (email === "") {
             setMessage("Please enter the email");
@@ -15,10 +17,20 @@ function Login() {
             setMessage("Please enter the password");
             return;
         } else {
-            setEmail("");
-            setPassword("");
-            setMessage("");
-            alert("Login succesful");
+            try {
+                const response = await axios.post('http://localhost:5000/api/auth/login', {
+                    email,
+                    password
+                });
+                
+                localStorage.setItem('token', response.data.token);
+                setEmail("");
+                setPassword("");
+                setMessage("Login successful!");
+                navigate('/todo');
+            } catch (err) {
+                setMessage(err.response?.data?.message || "Login failed. Please check your credentials.");
+            }
         }
     };
 
@@ -45,7 +57,11 @@ function Login() {
                 <button type="submit">Login</button>
                 <p>{message}</p>
             </form>
-            <Link to="/">Back to Landing</Link>
+            <div style={{ marginTop: '10px' }}>
+                <Link to="/signup">Don't have an account? Sign up</Link>
+                <br /><br />
+                <Link to="/">Back to Landing</Link>
+            </div>
         </div>
     );
 }
