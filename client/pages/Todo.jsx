@@ -13,6 +13,7 @@ function Todo() {
     var navigate = useNavigate();
     var token = localStorage.getItem('token');
     var email = localStorage.getItem('email') || 'User';
+    var API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : '';
 
     useEffect(function() {
         if (!token) {
@@ -22,7 +23,7 @@ function Todo() {
 
         async function fetchTodos() {
             try {
-                var response = await axios.get('http://localhost:5000/api/todos', {
+                var response = await axios.get(API_BASE + '/api/todos', {
                     headers: { Authorization: 'Bearer ' + token }
                 });
                 setTodos(response.data);
@@ -45,7 +46,7 @@ function Todo() {
 
         try {
             var response = await axios.post(
-                'http://localhost:5000/api/todos',
+                API_BASE + '/api/todos',
                 { title: title, description: desc },
                 { headers: { Authorization: 'Bearer ' + token } }
             );
@@ -60,7 +61,7 @@ function Todo() {
     async function handleToggle(todoId) {
         try {
             var response = await axios.put(
-                'http://localhost:5000/api/todos/' + todoId + '/toggle',
+                API_BASE + '/api/todos/' + todoId + '/toggle',
                 {},
                 { headers: { Authorization: 'Bearer ' + token } }
             );
@@ -80,7 +81,7 @@ function Todo() {
 
     async function handleDelete(todoId) {
         try {
-            await axios.delete('http://localhost:5000/api/todos/' + todoId, {
+            await axios.delete(API_BASE + '/api/todos/' + todoId, {
                 headers: { Authorization: 'Bearer ' + token }
             });
 
@@ -98,7 +99,7 @@ function Todo() {
         if (!editTitle || !editDesc) return;
         try {
             var response = await axios.put(
-                'http://localhost:5000/api/todos/' + todoId,
+                API_BASE + '/api/todos/' + todoId,
                 { title: editTitle, description: editDesc },
                 { headers: { Authorization: 'Bearer ' + token } }
             );
