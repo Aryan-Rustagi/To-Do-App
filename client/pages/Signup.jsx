@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
+import '../src/styles/auth.css';
 
 function Signup() {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmpassword, setConfirmPassword] = useState("");
-    const [message, setMessage] = useState("");
-    const navigate = useNavigate();
+    var [email, setEmail] = useState('');
+    var [password, setPassword] = useState('');
+    var [confirmPassword, setConfirmPassword] = useState('');
+    var [message, setMessage] = useState('');
+    var navigate = useNavigate();
+
+    useEffect(function() {
+        var token = localStorage.getItem('token');
+        if (token) {
+            navigate('/todo');
+        }
+    }, [navigate]);
 
     function handleEmailChange(event) {
         setEmail(event.target.value);
@@ -23,73 +31,105 @@ function Signup() {
 
     async function handleSignup(event) {
         event.preventDefault();
-        
-        if (email === "") {
-            setMessage("Please enter your email");
-            return;
-        } else if (password === "") {
-            setMessage("Please enter your password");
-            return;
-        } else if (confirmpassword === "") {
-            setMessage("Please confirm your password");
-            return;
-        } else if (password !== confirmpassword) {
-            setMessage("Passwords do not match!");
-            return;
-        } else {
-            try {
-                const response = await axios.post('http://localhost:5000/api/auth/register', {
-                    email: email,
-                    password: password
-                });
+        setMessage('');
 
-                localStorage.setItem('token', response.data.token);
-                setEmail("");
-                setPassword("");
-                setConfirmPassword("");
-                setMessage("Signup successful! 🎉");
-                navigate('/login');
-            } catch(err) {
-                setMessage(err.response?.data?.message || "Registration failed. Please try again.");
-            }
+        if (email === '') {
+            setMessage('Please enter your email');
+            return;
+        }
+
+        if (password === '') {
+            setMessage('Please enter your password');
+            return;
+        }
+
+        if (confirmPassword === '') {
+            setMessage('Please confirm your password');
+            return;
+        }
+
+        if (password !== confirmPassword) {
+            setMessage('Passwords do not match!');
+            return;
+        }
+
+        try {
+            var response = await axios.post('http://localhost:5000/api/auth/register', {
+                email: email,
+                password: password
+            });
+            localStorage.setItem('token', response.data.token);
+            localStorage.setItem('email', response.data.email || email);
+            setMessage('Account created! Redirecting...');
+            navigate('/todo');
+        } catch (err) {
+            setMessage(
+                (err.response && err.response.data && err.response.data.message)
+                    ? err.response.data.message
+                    : 'Registration failed. Please try again.'
+            );
         }
     }
 
+    var isSuccess = message.indexOf('Account created') !== -1;
+
     return (
-        <div>
-            <h2>Sign Up</h2>
-            <form onSubmit={handleSignup}>
-                <input 
-                    title='Email'
-                    type="email"
-                    placeholder='Email'
-                    value={email}
-                    onChange={handleEmailChange}
-                />
+        <div className="auth-page">
+            <div className="auth-logo-wrap">
+                <div className="auth-logo-icon">&#10003;</div>
+                <span className="auth-logo-text">TaskFlow</span>
+            </div>
 
-                <input
-                    title='Password'
-                    type='password'
-                    placeholder="Password"
-                    value={password}
-                    onChange={handlePasswordChange}
-                />
+            <div className="auth-card">
+                <h2 className="auth-heading">Create your account</h2>
+                <p className="auth-subheading">Start organizing your tasks for free</p>
 
-                <input
-                    title='Confirm Password'
-                    type='password'
-                    placeholder="Confirm Password"
-                    value={confirmpassword}
-                    onChange={handleConfirmPasswordChange}
-                />
+                {message !== '' && (
+                    <div className={'auth-message ' + (isSuccess ? 'success' : 'error')}>
+                        {message}
+                    </div>
+                )}
 
-                <button type="submit">Sign Up</button>
-                <p>{message}</p>
-            </form>
-            <div style={{ marginTop: '10px' }}>
-                <Link to="/login">Already have an account? Log in</Link>
-                <br /><br />
-                <Link to="/">Back to Landing</Link>
+                <form onSubmit={handleSignup} className="auth-form">
+                    <div className="form-group">
+                        <label htmlFor="signup-email">Email address</label>
+                        <input
+                            id="signup-email"
+                            type="email"
+                            placeholder="name@example.com"
+                            value={email}
+                            onChange={handleEmailChange}
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="signup-password">Password</label>
+                        <input
+                            id="signup-password"
+                            type="password"
+                            placeholder="Create a password"
+                            value={password}
+                            onChange={handlePasswordChange}
+                            className="form-input"
+                        />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="signup-confirm">Confirm Password</label>
+                        <input
+                            id="signup-confirm"
+                            type="password"
+                            placeholder="Confirm your password"
+                            value={confirmPassword}
+                            onChange={handleConfirmPasswordChange}
+                            className="form-input"
+                        />
+                    </div>
+                    <button type="submit" className="btn-primary btn-full">Create Account</button>
+                </form>
+
+                <p className="auth-footer-text">
+                    Already have an account? <Link to="/login" className="auth-link">Sign in</Link>
+                </p>
             </div>
         </div>
     );

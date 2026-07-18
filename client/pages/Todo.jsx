@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import '../src/styles/todo.css';
 
 function Todo() {
-    const [todos, setTodos] = useState([]);
-    const [title, setTitle] = useState('');
-    const [desc, setDesc] = useState('');
-    const [editingId, setEditingId] = useState(null);
-    const [editTitle, setEditTitle] = useState('');
-    const [editDesc, setEditDesc] = useState('');
-    const navigate = useNavigate();
-    const token = localStorage.getItem('token');
+    var [todos, setTodos] = useState([]);
+    var [title, setTitle] = useState('');
+    var [desc, setDesc] = useState('');
+    var [editingId, setEditingId] = useState(null);
+    var [editTitle, setEditTitle] = useState('');
+    var [editDesc, setEditDesc] = useState('');
+    var navigate = useNavigate();
+    var token = localStorage.getItem('token');
+    var email = localStorage.getItem('email') || 'User';
 
     useEffect(function() {
         if (!token) {
@@ -20,35 +22,34 @@ function Todo() {
 
         async function fetchTodos() {
             try {
-                const response = await axios.get('http://localhost:5000/api/todos', {
+                var response = await axios.get('http://localhost:5000/api/todos', {
                     headers: { Authorization: 'Bearer ' + token }
                 });
                 setTodos(response.data);
             } catch (error) {
                 console.log('Error fetching todos:', error);
+                if (error.response && error.response.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('email');
+                    navigate('/login');
+                }
             }
         }
 
         fetchTodos();
-    }, []);
+    }, [token, navigate]);
 
     async function handleAdd(event) {
         event.preventDefault();
-
-        if (title === '' || desc === '') {
-            return;
-        }
+        if (!title || !desc) return;
 
         try {
-            const response = await axios.post('http://localhost:5000/api/todos', {
-                title: title,
-                description: desc
-            }, {
-                headers: { Authorization: 'Bearer ' + token }
-            });
-
-            const newTodos = todos.concat(response.data);
-            setTodos(newTodos);
+            var response = await axios.post(
+                'http://localhost:5000/api/todos',
+                { title: title, description: desc },
+                { headers: { Authorization: 'Bearer ' + token } }
+            );
+            setTodos(todos.concat(response.data));
             setTitle('');
             setDesc('');
         } catch (error) {
@@ -58,20 +59,20 @@ function Todo() {
 
     async function handleToggle(todoId) {
         try {
-            const response = await axios.put('http://localhost:5000/api/todos/' + todoId + '/toggle', {}, {
-                headers: { Authorization: 'Bearer ' + token }
-            });
+            var response = await axios.put(
+                'http://localhost:5000/api/todos/' + todoId + '/toggle',
+                {},
+                { headers: { Authorization: 'Bearer ' + token } }
+            );
 
-            function updateTodo(todo) {
+            function updateItem(todo) {
                 if (todo._id === todoId) {
                     return response.data;
-                } else {
-                    return todo;
                 }
+                return todo;
             }
 
-            const updatedTodos = todos.map(updateTodo);
-            setTodos(updatedTodos);
+            setTodos(todos.map(updateItem));
         } catch (error) {
             console.log('Error toggling todo:', error);
         }
@@ -87,143 +88,185 @@ function Todo() {
                 return todo._id !== todoId;
             }
 
-            const remainingTodos = todos.filter(keepTodo);
-            setTodos(remainingTodos);
+            setTodos(todos.filter(keepTodo));
         } catch (error) {
             console.log('Error deleting todo:', error);
         }
     }
 
-    function handleLogout() {
-        localStorage.removeItem('token');
-        navigate('/');
-    }
-
     async function handleSaveEdit(todoId) {
-        if (editTitle === '' || editDesc === '') return;
+        if (!editTitle || !editDesc) return;
         try {
-            const response = await axios.put('http://localhost:5000/api/todos/' + todoId, {
-                title: editTitle,
-                description: editDesc
-            }, {
-                headers: { Authorization: 'Bearer ' + token }
-            });
-            
-            setTodos(todos.map(todo => todo._id === todoId ? response.data : todo));
+            var response = await axios.put(
+                'http://localhost:5000/api/todos/' + todoId,
+                { title: editTitle, description: editDesc },
+                { headers: { Authorization: 'Bearer ' + token } }
+            );
+
+            function replaceEdited(todo) {
+                if (todo._id === todoId) {
+                    return response.data;
+                }
+                return todo;
+            }
+
+            setTodos(todos.map(replaceEdited));
             setEditingId(null);
         } catch (error) {
             console.log('Error updating todo:', error);
         }
     }
 
+    function handleLogout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('email');
+        navigate('/');
+    }
+
     function handleTitleChange(event) {
         setTitle(event.target.value);
     }
 
-    function handleDescriptionChange(event) {
+    function handleDescChange(event) {
         setDesc(event.target.value);
     }
 
-    return (
-        <div style={{ padding: 20, maxWidth: 600, margin: '0 auto' }}>
-            <h2>
-                My Todos 
-                <button onClick={handleLogout} style={{ marginLeft: 20 }}>
-                    Logout
-                </button>
-            </h2>
+    function handleEditTitleChange(event) {
+        setEditTitle(event.target.value);
+    }
 
-            <form onSubmit={handleAdd}>
-                <input 
-                    type="text"
-                    placeholder="Title" 
-                    value={title} 
-                    onChange={handleTitleChange}
-                    style={{ width: '100%', padding: 8, marginBottom: 10 }}
-                />
+    function handleEditDescChange(event) {
+        setEditDesc(event.target.value);
+    }
 
-                <input 
-                    type="text"
-                    placeholder="Description" 
-                    value={desc} 
-                    onChange={handleDescriptionChange}
-                    style={{ width: '100%', padding: 8, marginBottom: 10 }}
-                />
+    function startEditing(todo) {
+        setEditingId(todo._id);
+        setEditTitle(todo.title);
+        setEditDesc(todo.description);
+    }
 
-                <button type="submit" style={{ width: '100%', padding: 10 }}>
-                    Add Todo
-                </button>
-            </form>
+    function cancelEditing() {
+        setEditingId(null);
+    }
 
-            {todos.map(function(todo) {
-                return (
-                    <div 
-                        key={todo._id} 
-                        style={{ 
-                            border: '1px solid #ccc', 
-                            padding: 10, 
-                            marginBottom: 10, 
-                            display: 'flex', 
-                            justifyContent: 'space-between',
-                            textDecoration: todo.completed ? 'line-through' : 'none',
-                            opacity: todo.completed ? 0.6 : 1
-                        }}
-                    >
-                        {editingId === todo._id ? (
-                            <div style={{ flex: 1, marginRight: '10px' }}>
-                                <input 
-                                    value={editTitle}
-                                    onChange={(e) => setEditTitle(e.target.value)}
-                                    style={{ width: '100%', marginBottom: '5px', padding: '4px' }}
-                                />
-                                <input 
-                                    value={editDesc}
-                                    onChange={(e) => setEditDesc(e.target.value)}
-                                    style={{ width: '100%', padding: '4px' }}
-                                />
-                            </div>
-                        ) : (
-                            <div>
-                                <h3>{todo.title}</h3>
-                                <p>{todo.description}</p>
-                            </div>
-                        )}
+    function renderTodoItem(todo) {
+        var isEditing = editingId === todo._id;
 
-                        <div>
-                            {editingId === todo._id ? (
-                                <>
-                                    <button onClick={() => handleSaveEdit(todo._id)}>Save</button>
-                                    <button onClick={() => setEditingId(null)} style={{ marginLeft: 10 }}>Cancel</button>
-                                </>
-                            ) : (
-                                <>
-                                    <button onClick={function() { handleToggle(todo._id); }}>
-                                        {todo.completed ? 'Undo' : 'Complete'}
-                                    </button>
-                                    <button 
-                                        onClick={function() {
-                                            setEditingId(todo._id);
-                                            setEditTitle(todo.title);
-                                            setEditDesc(todo.description);
-                                        }} 
-                                        style={{ marginLeft: 10 }}
-                                    >
-                                        Edit
-                                    </button>
-                                    <button 
-                                        onClick={function() { handleDelete(todo._id); }} 
-                                        style={{ marginLeft: 10 }}
-                                    >
-                                        Delete
-                                    </button>
-                                </>
-                            )}
+        function onToggle() {
+            handleToggle(todo._id);
+        }
+
+        function onDelete() {
+            handleDelete(todo._id);
+        }
+
+        function onEdit() {
+            startEditing(todo);
+        }
+
+        function onSave() {
+            handleSaveEdit(todo._id);
+        }
+
+        var cardClass = 'todo-item-card' + (todo.completed ? ' completed' : '');
+        var checkboxClass = 'todo-checkbox' + (todo.completed ? ' checked' : '');
+
+        return (
+            <div key={todo._id} className={cardClass}>
+                {isEditing ? (
+                    <div className="edit-form">
+                        <input
+                            value={editTitle}
+                            onChange={handleEditTitleChange}
+                            className="todo-input"
+                        />
+                        <input
+                            value={editDesc}
+                            onChange={handleEditDescChange}
+                            className="todo-input"
+                        />
+                    </div>
+                ) : (
+                    <div className="todo-content">
+                        <button onClick={onToggle} className={checkboxClass}>
+                            {todo.completed && <span className="checkmark">&#10003;</span>}
+                        </button>
+                        <div className="todo-text">
+                            <h4 className="todo-title">{todo.title}</h4>
+                            <p className="todo-desc">{todo.description}</p>
                         </div>
                     </div>
-                );
-            })}
+                )}
 
-            {todos.length === 0 && <p>No todos yet. Add one above!</p>}
+                <div className="todo-actions">
+                    {isEditing ? (
+                        <React.Fragment>
+                            <button onClick={onSave} className="btn-save">Save</button>
+                            <button onClick={cancelEditing} className="btn-cancel">Cancel</button>
+                        </React.Fragment>
+                    ) : (
+                        <React.Fragment>
+                            <button onClick={onEdit} className="btn-edit">Edit</button>
+                            <button onClick={onDelete} className="btn-delete">Delete</button>
+                        </React.Fragment>
+                    )}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="todo-page">
+            <header className="todo-header">
+                <div className="logo-wrap">
+                    <div className="logo-icon">&#10003;</div>
+                    <span className="logo-text">TaskFlow</span>
+                </div>
+                <div className="user-section">
+                    <div className="user-info">
+                        <div className="user-avatar">{email.substring(0, 2)}</div>
+                        <span className="user-email">{email}</span>
+                    </div>
+                    <button onClick={handleLogout} className="btn-signout">Sign Out</button>
+                </div>
+            </header>
+
+            <main className="todo-main">
+                <div className="todo-add-card">
+                    <h3 className="card-title">Create new task</h3>
+                    <form onSubmit={handleAdd} className="todo-form">
+                        <input
+                            type="text"
+                            placeholder="What needs to be done?"
+                            value={title}
+                            onChange={handleTitleChange}
+                            className="todo-input"
+                        />
+                        <input
+                            type="text"
+                            placeholder="Add details or description..."
+                            value={desc}
+                            onChange={handleDescChange}
+                            className="todo-input"
+                        />
+                        <button type="submit" className="btn-primary">Add Task</button>
+                    </form>
+                </div>
+
+                <h3 className="list-title">Tasks</h3>
+
+                <div className="todo-list">
+                    {todos.map(renderTodoItem)}
+
+                    {todos.length === 0 && (
+                        <div className="empty-state">
+                            <div className="empty-icon">&#128221;</div>
+                            <h4>No tasks yet</h4>
+                            <p>Create your first task above to get started!</p>
+                        </div>
+                    )}
+                </div>
+            </main>
         </div>
     );
 }

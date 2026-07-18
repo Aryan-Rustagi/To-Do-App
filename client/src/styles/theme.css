@@ -1,0 +1,57 @@
+/* theme.css – Core design tokens */
+
+:root {
+  --font-family: 'Inter', sans-serif;
+  --primary-color: #0066FF;
+  --bg-color: #ffffff;
+  --text-color: #222222;
+  --border-radius: 8px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 10px rgba(0,0,0,0.10);
+  --shadow-lg: 0 8px 20px rgba(0,0,0,0.15);
+  --transition: 0.2s ease-in-out;
+  /* Additional UI tokens */
+  --bg-main: var(--bg-color);
+  --bg-card: #fafafa;
+  --border: #e5e7eb;
+  --radius-md: var(--border-radius);
+  --text-main: #111827;
+  --text-muted: #6b7280;
+  --text-light: #9ca3af;
+  --danger: #dc2626;
+  --danger-bg: #fee2e2;
+  --primary: var(--primary-color);
+  --success: #10b981;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+:root {
+  --font-family: 'Inter', sans-serif;
+  --primary-color: #0066FF;
+  --bg-color: #ffffff;
+  --text-color: #222222;
+  --border-radius: 8px;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-lg: 0 4px 12px rgba(0,0,0,0.12);
+  --transition: 0.2s ease-in-out;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-family);
+  background: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.5;
+}
+
+button, input, textarea {
+  font-family: inherit;
+}
