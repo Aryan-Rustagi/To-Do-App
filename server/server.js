@@ -19,12 +19,12 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 
-// Catch-all route to serve index.html for SPA router
-app.get("*", function(req, res, next) {
-    if (req.path.startsWith('/api')) {
-        return next();
+// Catch-all middleware to serve index.html for SPA router (GET requests only)
+app.use(function(req, res, next) {
+    if (req.method === 'GET' && !req.path.startsWith('/api')) {
+        return res.sendFile(path.join(__dirname, "../client/dist/index.html"));
     }
-    res.sendFile(path.join(__dirname, "../client/dist/index.html"));
+    next();
 });
 
 app.listen(PORT,function(){
