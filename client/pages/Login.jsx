@@ -38,8 +38,10 @@ function Login() {
             return;
         }
 
+        var API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : '';
+
         try {
-            var response = await axios.post('http://localhost:5000/api/auth/login', {
+            var response = await axios.post(API_BASE + '/api/auth/login', {
                 email: email,
                 password: password
             });

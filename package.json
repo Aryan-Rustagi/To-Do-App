@@ -1,0 +1,14 @@
+{
+  "name": "to-do-app-root",
+  "version": "1.0.0",
+  "description": "Full-stack To-Do Application deployed on Railway",
+  "main": "server/server.js",
+  "scripts": {
+    "postinstall": "npm install --prefix client && npm install --prefix server",
+    "build": "npm run build --prefix client",
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
