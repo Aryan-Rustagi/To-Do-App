@@ -158,3 +158,12 @@
 .auth-link:hover {
     text-decoration: underline;
 }
+
+@media (max-width: 480px) {
+    .auth-page {
+        padding: 16px;
+    }
+    .auth-card {
+        padding: 28px 20px;
+    }
+}
