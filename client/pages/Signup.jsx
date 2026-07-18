@@ -53,7 +53,7 @@ function Signup() {
             return;
         }
 
-        var API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : '';
+        var API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : 'https://to-do-app-erhn.onrender.com';
 
         try {
             var response = await axios.post(API_BASE + '/api/auth/register', {
