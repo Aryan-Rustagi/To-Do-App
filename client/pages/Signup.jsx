@@ -1,14 +1,12 @@
-import React from 'react';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [confirmpassword, setConfirmPassword] = useState("");
     const [message, setMessage] = useState("");
-    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
 
     function handleEmailChange(event) {
@@ -23,135 +21,76 @@ function Signup() {
         setConfirmPassword(event.target.value);
     }
 
-    function handleSubmit(event) {
+    async function handleSignup(event) {
         event.preventDefault();
-        setIsLoading(true);
-        setMessage("");
-
-        // Validation
-        if (!email.trim()) {
+        
+        if (email === "") {
             setMessage("Please enter your email");
-            setIsLoading(false);
             return;
-        }
-        if (!password.trim()) {
+        } else if (password === "") {
             setMessage("Please enter your password");
-            setIsLoading(false);
             return;
-        }
-        if (!confirmpassword.trim()) {
+        } else if (confirmpassword === "") {
             setMessage("Please confirm your password");
-            setIsLoading(false);
             return;
-        }
-        if (password !== confirmpassword) {
+        } else if (password !== confirmpassword) {
             setMessage("Passwords do not match!");
-            setIsLoading(false);
             return;
-        }
-        if (password.length < 6) {
-            setMessage("Password must be at least 6 characters");
-            setIsLoading(false);
-            return;
-        }
+        } else {
+            try {
+                const response = await axios.post('http://localhost:5000/api/auth/register', {
+                    email: email,
+                    password: password
+                });
 
-        // Simulate API call
-        setTimeout(function() {
-            setEmail("");
-            setPassword("");
-            setConfirmPassword("");
-            setMessage("Signup successful! 🎉");
-            setIsLoading(false);
-            alert("Account created successfully!");
-            // navigate('/login');
-        }, 1000);
+                localStorage.setItem('token', response.data.token);
+                setEmail("");
+                setPassword("");
+                setConfirmPassword("");
+                setMessage("Signup successful! 🎉");
+                navigate('/login');
+            } catch(err) {
+                setMessage(err.response?.data?.message || "Registration failed. Please try again.");
+            }
+        }
     }
 
     return (
-        <div style={{ maxWidth: '400px', margin: '50px auto', padding: '20px' }}>
-            <h1>Don't have an account?</h1>
-            <h3>Create your account here</h3>
+        <div>
+            <h2>Sign Up</h2>
+            <form onSubmit={handleSignup}>
+                <input 
+                    title='Email'
+                    type="email"
+                    placeholder='Email'
+                    value={email}
+                    onChange={handleEmailChange}
+                />
 
-            <form onSubmit={handleSubmit}>
-                <div style={{ marginBottom: '15px' }}>
-                    <input
-                        type="email"
-                        placeholder='Email'
-                        value={email}
-                        onChange={handleEmailChange}
-                        required
-                        style={{ 
-                            width: '100%', 
-                            padding: '10px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                        }}
-                    />
-                </div>
+                <input
+                    title='Password'
+                    type='password'
+                    placeholder="Password"
+                    value={password}
+                    onChange={handlePasswordChange}
+                />
 
-                <div style={{ marginBottom: '15px' }}>
-                    <input
-                        type="password"
-                        placeholder='Password'
-                        value={password}
-                        onChange={handlePasswordChange}
-                        required
-                        style={{ 
-                            width: '100%', 
-                            padding: '10px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                        }}
-                    />
-                </div>
+                <input
+                    title='Confirm Password'
+                    type='password'
+                    placeholder="Confirm Password"
+                    value={confirmpassword}
+                    onChange={handleConfirmPasswordChange}
+                />
 
-                <div style={{ marginBottom: '15px' }}>
-                    <input
-                        type="password"
-                        placeholder='Confirm Password'
-                        value={confirmpassword}
-                        onChange={handleConfirmPasswordChange}
-                        required
-                        style={{ 
-                            width: '100%', 
-                            padding: '10px',
-                            borderRadius: '4px',
-                            border: '1px solid #ccc'
-                        }}
-                    />
-                </div>
-
-                <button 
-                    type="submit" 
-                    disabled={isLoading}
-                    style={{ 
-                        width: '100%', 
-                        padding: '10px',
-                        background: isLoading ? '#ccc' : '#28a745',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: isLoading ? 'not-allowed' : 'pointer',
-                        fontSize: '16px'
-                    }}
-                >
-                    {isLoading ? 'Creating account...' : 'Sign Up'}
-                </button>
-
-                {message && (
-                    <p style={{ 
-                        marginTop: '10px', 
-                        color: message.includes('successful') ? 'green' : 'red',
-                        textAlign: 'center'
-                    }}>
-                        {message}
-                    </p>
-                )}
-
-                <p style={{ textAlign: 'center', marginTop: '15px' }}>
-                    Already have an account? <Link to="/login">Login here</Link>
-                </p>
+                <button type="submit">Sign Up</button>
+                <p>{message}</p>
             </form>
+            <div style={{ marginTop: '10px' }}>
+                <Link to="/login">Already have an account? Log in</Link>
+                <br /><br />
+                <Link to="/">Back to Landing</Link>
+            </div>
         </div>
     );
 }
