@@ -18,11 +18,13 @@ app.use(express.static(path.join(__dirname, "../client/dist")));
 app.use('/api/auth', authRoutes);
 app.use('/api/todos', todoRoutes);
 
-app.use(function(req, res, next) {
-    if (req.method === 'GET' && !req.path.startsWith('/api')) {
-        return res.sendFile(path.join(__dirname, "../client/dist/index.html"));
-    }
-    next();
+// Catch-all route to serve index.html for React Router SPA routes
+app.get('*', function(req, res) {
+    res.sendFile(path.resolve(__dirname, "../client/dist", "index.html"), function(err) {
+        if (err) {
+            res.status(404).send("SPA fallback: index.html not found. Please ensure the frontend client is built using 'npm run build'.");
+        }
+    });
 });
 
 app.get('/',function(req,res){
