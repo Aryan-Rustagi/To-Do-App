@@ -4,7 +4,7 @@
   "description": "Full-stack To-Do Application deployed on Railway",
   "main": "server/server.js",
   "scripts": {
-    "postinstall": "npm install --prefix client && npm install --prefix server",
+    "postinstall": "npm install --prefix client && npm install --prefix server && npm run build --prefix client",
     "build": "npm run build --prefix client",
     "start": "node server/server.js"
   },

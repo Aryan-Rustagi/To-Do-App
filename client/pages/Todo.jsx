@@ -13,7 +13,7 @@ function Todo() {
     var navigate = useNavigate();
     var token = localStorage.getItem('token');
     var email = localStorage.getItem('email') || 'User';
-    var API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : '';
+    var API_BASE = import.meta.env.DEV ? 'http://localhost:5000' : 'https://to-do-app-erhn.onrender.com';
 
     useEffect(function() {
         if (!token) {

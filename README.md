@@ -6,6 +6,13 @@ A clean, full-stack to-do list application built with React (Vite) on the fronte
 
 ---
 
+## Live Deployments
+
+- **Frontend (Vercel):** [https://to-do-app-azure-seven.vercel.app/](https://to-do-app-azure-seven.vercel.app/)
+- **Backend (Render):** [https://to-do-app-erhn.onrender.com](https://to-do-app-erhn.onrender.com)
+
+---
+
 ## Project Structure
 
 ```
