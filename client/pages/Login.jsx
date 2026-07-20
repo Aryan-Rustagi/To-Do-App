@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import axios from 'axios';
 import '../src/styles/auth.css';
 
 function Login() {
-    var [email, setEmail] = useState('');
-    var [password, setPassword] = useState('');
-    var [message, setMessage] = useState('');
-    var navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(function() {
-        var token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
         if (token) {
             navigate('/todo');
         }
@@ -22,6 +24,10 @@ function Login() {
 
     function handlePasswordChange(event) {
         setPassword(event.target.value);
+    }
+
+    function togglePassword() {
+        setShowPassword(!showPassword);
     }
 
     async function handleLogin(event) {
@@ -93,12 +99,15 @@ function Login() {
                         <label htmlFor="login-password">Password</label>
                         <input
                             id="login-password"
-                            type="password"
+                            type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
                             value={password}
                             onChange={handlePasswordChange}
                             className="form-input"
                         />
+                        <button onClick={togglePassword}>
+                            {showPassword ? <FaEyeSlash /> : <FaEye />}
+                        </button>
                     </div>
                     <button type="submit" className="btn-primary btn-full">Sign In</button>
                 </form>
