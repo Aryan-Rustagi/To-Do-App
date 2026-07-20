@@ -1,17 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import {FaEye, FaEyeSlash} from 'react-icons/fa';
 import axios from 'axios';
 import '../src/styles/auth.css';
 
 function Signup() {
-    var [email, setEmail] = useState('');
-    var [password, setPassword] = useState('');
-    var [confirmPassword, setConfirmPassword] = useState('');
-    var [message, setMessage] = useState('');
-    var navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [message, setMessage] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(function() {
-        var token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
         if (token) {
             navigate('/todo');
         }
@@ -27,6 +30,14 @@ function Signup() {
 
     function handleConfirmPasswordChange(event) {
         setConfirmPassword(event.target.value);
+    }
+
+    function togglePassword(){
+        setShowPassword(!showPassword);
+    }
+
+    function toggleConfirmPassword(){
+        setShowConfirmPassword(!showConfirmPassword);
     }
 
     async function handleSignup(event) {
@@ -105,27 +116,43 @@ function Signup() {
                         />
                     </div>
                     <div className="form-group">
-                        <label htmlFor="signup-password">Password</label>
-                        <input
-                            id="signup-password"
-                            type="password"
-                            placeholder="Create a password"
-                            value={password}
-                            onChange={handlePasswordChange}
-                            className="form-input"
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="signup-confirm">Confirm Password</label>
-                        <input
-                            id="signup-confirm"
-                            type="password"
-                            placeholder="Confirm your password"
-                            value={confirmPassword}
-                            onChange={handleConfirmPasswordChange}
-                            className="form-input"
-                        />
-                    </div>
+    <label htmlFor="signup-password">Password</label>
+
+    <input
+        id="signup-password"
+        type={showPassword ? "text" : "password"}
+        placeholder="Create a password"
+        value={password}
+        onChange={handlePasswordChange}
+        className="form-input"
+    />
+
+    <button
+        type="button"
+        onClick={togglePassword}
+    >
+        {showPassword ? <FaEyeSlash /> : <FaEye />}
+    </button>
+</div>
+                  <div className="form-group">
+    <label htmlFor="signup-confirm">Confirm Password</label>
+
+    <input
+        id="signup-confirm"
+        type={showConfirmPassword ? "text" : "password"}
+        placeholder="Confirm your password"
+        value={confirmPassword}
+        onChange={handleConfirmPasswordChange}
+        className="form-input"
+    />
+
+    <button
+        type="button"
+        onClick={toggleConfirmPassword}
+    >
+        {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
+    </button>
+</div>
                     <button type="submit" className="btn-primary btn-full">Create Account</button>
                 </form>
 
