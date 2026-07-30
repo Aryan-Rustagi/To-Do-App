@@ -10,6 +10,7 @@ function Todo() {
     var [editingId, setEditingId] = useState(null);
     var [editTitle, setEditTitle] = useState('');
     var [editDesc, setEditDesc] = useState('');
+    var [loading, setLoading] = useState(true);
     var navigate = useNavigate();
     var token = localStorage.getItem('token');
     var email = localStorage.getItem('email') || 'User';
@@ -34,6 +35,8 @@ function Todo() {
                     localStorage.removeItem('email');
                     navigate('/login');
                 }
+            } finally {
+                setLoading(false);
             }
         }
 
@@ -212,6 +215,15 @@ function Todo() {
                         </React.Fragment>
                     )}
                 </div>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="loading-page">
+                <div className="spinner"></div>
+                <p>Loading, please wait...</p>
             </div>
         );
     }
