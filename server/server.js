@@ -27,6 +27,12 @@ app.get('/{*path}', function(req, res) {
     });
 });
 
+app.get('/health',function(req,res){
+    res.status(200).json({
+        msg:'ok'
+    });
+});
+
 app.listen(PORT,function(){
     console.log(`Server is running on port ${PORT}`);
 });
