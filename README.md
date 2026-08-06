@@ -8,8 +8,9 @@ A clean, full-stack to-do list application built with React (Vite) on the fronte
 
 ## Live Deployments
 
+- **Fullstack App (Railway):** [https://to-do-app-production-ad40.up.railway.app/](https://to-do-app-production-ad40.up.railway.app/)
 - **Frontend (Vercel):** [https://to-do-app-azure-seven.vercel.app/](https://to-do-app-azure-seven.vercel.app/)
-- **Backend (Render):** [https://to-do-app-erhn.onrender.com](https://to-do-app-erhn.onrender.com)
+- **Backend (Render):** [https://to-do-app-hkkz.onrender.com](https://to-do-app-hkkz.onrender.com)
 
 ---
 
@@ -35,22 +36,26 @@ To-Do-App/
 │   │   └── index.css         # Base global styles
 │   └── package.json
 │
-└── server/                   # Node.js backend
-    ├── controller/
-    │   ├── todoController.js  # CRUD logic for todos
-    │   └── authController.js  # Register & login logic
-    ├── models/
-    │   ├── Todo.js            # Mongoose Todo schema
-    │   └── User.js            # Mongoose User schema
-    ├── routes/
-    │   ├── todoRoutes.js      # /api/todos routes
-    │   └── authRoutes.js      # /api/auth routes
-    ├── middleware/
-    │   └── authMiddleware.js  # JWT verification middleware
-    ├── db.config/
-    │   └── db.js              # MongoDB connection
-    ├── .env                   # Environment variables (not committed)
-    └── server.js              # Express app entry point
+├── server/                   # Node.js backend
+│   ├── controller/
+│   │   ├── todoController.js  # CRUD logic for todos
+│   │   └── authController.js  # Register & login logic
+│   ├── models/
+│   │   ├── Todo.js            # Mongoose Todo schema
+│   │   └── User.js            # Mongoose User schema
+│   ├── routes/
+│   │   ├── todoRoutes.js      # /api/todos routes
+│   │   └── authRoutes.js      # /api/auth routes
+│   ├── middleware/
+│   │   └── authMiddleware.js  # JWT verification middleware
+│   ├── db.config/
+│   │   └── db.js              # MongoDB connection
+│   ├── .env                   # Environment variables (not committed)
+│   └── server.js              # Express app entry point
+│
+├── Dockerfile                # Multi-stage container definition
+├── docker-compose.yml        # Docker Compose configuration (App + MongoDB)
+└── package.json              # Root build & deployment scripts
 ```
 
 ---
@@ -109,41 +114,59 @@ To-Do-App/
 
 ## Tech Stack
 
-| Layer      | Technology                        |
-|------------|-----------------------------------|
-| Frontend   | React 18, Vite, React Router v6   |
-| Styling    | Vanilla CSS *(AI generated)*      |
-| HTTP       | Axios                             |
-| Backend    | Node.js, Express.js               |
-| Database   | MongoDB with Mongoose             |
-| Auth       | JSON Web Tokens (JWT)             |
+| Layer          | Technology                        |
+|----------------|-----------------------------------|
+| Frontend       | React 18, Vite, React Router v6   |
+| Styling        | Vanilla CSS *(AI generated)*      |
+| HTTP           | Axios                             |
+| Backend        | Node.js, Express.js               |
+| Database       | MongoDB with Mongoose             |
+| Auth           | JSON Web Tokens (JWT)             |
+| Containerization | Docker, Docker Compose          |
+| Deployment     | Railway, Vercel, Render           |
 
 ---
 
 ## Running the Project Locally
 
-### Prerequisites
+### Option A: Standard Node.js Execution
+
+#### Prerequisites
 - Node.js (v18+)
 - MongoDB (local or Atlas)
 
-### 1. Start the Backend
-```bash
-cd server
-npm install
-# Create a .env file with:
-# MONGO_URI=your_mongodb_connection_string
-# JWT_SECRET=your_secret_key
-node server.js
-```
-Server runs on `http://localhost:5000`
+1. **Start the Backend**:
+   ```bash
+   cd server
+   npm install
+   node server.js
+   ```
+   Server runs on `http://localhost:5000`
 
-### 2. Start the Frontend
-```bash
-cd client
-npm install
-npm run dev
-```
-App runs on `http://localhost:5173`
+2. **Start the Frontend**:
+   ```bash
+   cd client
+   npm install
+   npm run dev
+   ```
+   App runs on `http://localhost:5173`
+
+---
+
+### Option B: Running with Docker Compose (App + MongoDB)
+
+#### Prerequisites
+- Docker Desktop installed and running
+
+1. **Start both App and MongoDB services**:
+   ```bash
+   docker compose up --build
+   ```
+2. Open your browser at `http://localhost:5000`
+3. **Stop containers**:
+   ```bash
+   docker compose down
+   ```
 
 ---
 
@@ -151,4 +174,5 @@ App runs on `http://localhost:5173`
 
 - No arrow functions are used anywhere in the React component files — all event handlers and async functions use the standard `function` keyword.
 - Each page has its own dedicated CSS file inside `client/src/styles/`.
-- All CSS was designed and generated with the help of AI to maintain a clean, professional white theme.
+- Containerized with Docker and deployed live on Railway at `https://to-do-app-production-ad40.up.railway.app/`.
+
